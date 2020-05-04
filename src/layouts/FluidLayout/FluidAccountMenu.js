@@ -1,18 +1,17 @@
 import React from 'react';
 import Menu from '@material-ui/core/Menu';
 import IconButton from '@material-ui/core/IconButton';
-import getUniqueId from '../helpers/getUniqueId'
-import Badge from '@material-ui/core/Badge';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { MenuItem } from '@material-ui/core';
 
-const domId = 'mib-' + getUniqueId()
+const domId = 'fam-ki39ksjio-oihj'
 
-export default ({
-  icon: Icon,
-  badge,
-  items = [],
-  ...rest
-}) => {
+const items = [
+  { text: 'Profile' },
+  { text: 'Log Out' },
+]
+
+export default () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
 
   const handleClick = (event) => {
@@ -30,15 +29,8 @@ export default ({
         aria-haspopup="true"
         onClick={handleClick}
         color="inherit"
-        {...rest}
       >
-        {badge ? (
-          <Badge badgeContent={badge} color="secondary">
-            <Icon />
-          </Badge>
-        ) : (
-            <Icon />
-          )}
+        <AccountCircleIcon />
       </IconButton>
       <Menu
         id={domId}

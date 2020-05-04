@@ -2,18 +2,18 @@
 
 const URL_PREFIX = 'http://localhost:8000'
 
-const sleep = (timeout = 1000) => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve()
-        }, timeout);
-    })
+export const sleep = (timeout = 1000) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, timeout);
+  })
 }
 
 const requestServer = async (
   path = '/', options = {},
 ) => {
-  const { method = 'GET', data, asFormData = false, respondBlob = false } = options
+  const { method = 'GET', data, asFormData = false } = options
 
   try {
     await sleep()
@@ -34,19 +34,27 @@ const requestServer = async (
         method, body,
         credentials: 'include',
         headers: {
-          ...(!asFormData ? { 'Content-Type': 'application/json' } : {})
+          // ...(!asFormData ? { 'Content-Type': 'application/json' } : {})
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         }
       }
     )
 
-    const result = respondBlob ? await response.blob() : await response.json()
+    const result = await response.json()
+
+    // Validation error
+    if (response.status === 422) {
+      return [{ message: 'Validation error', data: result }, null]
+    }
+
     if (!response.ok) {
       return [result, null]
     }
     return [null, result]
   } catch (error) {
     console.log(error);
-    
+
     return [{ message: error.message }, null]
   }
 }

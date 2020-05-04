@@ -8,12 +8,15 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 
 import 'draft-js/dist/Draft.css'
+import { SnackbarProvider } from 'notistack';
 
 ReactDOM.render(
   <Provider store={store}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <SnackbarProvider maxSnack={1}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </SnackbarProvider>
   </Provider>,
   document.getElementById('root')
 );

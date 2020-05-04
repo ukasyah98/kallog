@@ -1,5 +1,4 @@
 import React from 'react'
-import MenuItem from '@material-ui/core/MenuItem';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import MenuIconDropdown from './MenuIconDropdown'
 

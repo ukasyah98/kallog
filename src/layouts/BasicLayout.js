@@ -56,6 +56,7 @@ export default function Checkout({
   children,
   history,
   prevPath,
+  actions,
 }) {
   const classes = useStyles();
 
@@ -74,6 +75,7 @@ export default function Checkout({
           <Typography className={classes.title} variant="h6" color="inherit" noWrap>
             {title}
           </Typography>
+          {actions}
         </Toolbar>
       </AppBar>
       <main className={classes.layout}>
