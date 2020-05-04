@@ -180,11 +180,14 @@ export default ({
                 </div>
               )
             } else if (f.type === formTypes.DATE) {
-              // return (
-              //   <RenderCrudDatePicker
+              return (
+                <div key={`filter-${f.name}`}>
+                  <MyLabel top={i > 0 && 15}>{f.label}</MyLabel>
+                  <RenderCrudDatePicker
 
-              //   />
-              // )
+                  />
+                </div>
+              )
             }
           })}
         </form>
