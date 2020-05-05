@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
-import AddIcon from '@material-ui/icons/ChevronLeft';
-import EditIcon from '@material-ui/icons/ChevronRight';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { unstable_batchedUpdates } from 'react-dom';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,7 +26,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function () {
+const disabledProps = {
+  style: {
+    pointerEvents: 'none',
+  },
+  tabIndex: -1,
+}
+
+export default function ({
+  disabled,
+  page, setPage,
+  lastPage,
+}) {
   const wrapperRef = React.useRef()
   const [marginLeft, setMarginLeft] = React.useState(0)
   const [marginRight, setMarginRight] = React.useState(0)
@@ -68,17 +79,29 @@ export default function () {
         }}
       >
         <div style={{ margin: 'auto' }} />
-        <div style={{ pointerEvents: 'auto', display: 'flex' }}>
-          <Fab size="small" aria-label="add">
-            <AddIcon />
+        <div style={{ pointerEvents: disabled ? 'none' : 'auto', display: 'flex' }}>
+          <Fab
+            size="small"
+            aria-label="page-previous"
+            onClick={() => setPage(page => page - 1)}
+            {...(page === 1 ? disabledProps : {})}
+          >
+            <ChevronLeftIcon />
           </Fab>
           <div style={{ marginRight: 10 }} />
-          <Fab size="medium" variant="extended">
-            Page 1 of 10
+
+          <Fab size="medium" variant="extended" {...disabledProps}>
+            Page {page} of {lastPage}
           </Fab>
+
           <div style={{ marginRight: 10 }} />
-          <Fab size="small" aria-label="edit">
-            <EditIcon />
+          <Fab
+            size="small"
+            aria-label="page-previous"
+            onClick={() => setPage(page => page + 1)}
+            {...(page === lastPage ? disabledProps : {})}
+          >
+            <ChevronRightIcon />
           </Fab>
         </div>
         <div style={{ margin: 'auto' }} />

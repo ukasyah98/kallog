@@ -8,11 +8,20 @@ import RenderCrudPagination from './RenderCrudPagination';
 import RenderCrudProgress from './RenderCrudProgress';
 import RenderCrudFormData from './RenderCrudFormData';
 import RenderCrudFilter from './RenderCrudFilter';
+import objectToParams from '../../helpers/objectToParams'
+
+// const filter = {
+//   perPage: 15,
+//   page: 1,
+//   keyword: 'web',
+//   sort: ['votes', 'asc'],
+// }
 
 export default withSnackbar((props) => {
   const {
     title, selector,
     layout: Layout, fields,
+    idFieldName = 'name',
   
     enqueueSnackbar,
   } = props
@@ -21,12 +30,24 @@ export default withSnackbar((props) => {
 
   const [openFormDialog, setOpenFormDialog] = React.useState(false)
   const [fetchLoading, setFetchLoading] = React.useState(true)
+
   const [data, setData] = React.useState([])
+  const [total, setTotal] = React.useState(0)
+  const [lastPage, setLastPage] = React.useState(1)
+
+  const [selectedData, setSelectedData] = React.useState(null)
+  const [perPage, setPerPage] = React.useState(15)
+  const [page, setPage] = React.useState(1)
+  const [keyword, setKeyword] = React.useState('')
+  const [sort, setSort] = React.useState([])
 
   const fetchData = React.useCallback(() => {
     const reqFunc = async () => {
       setFetchLoading(true)
-      const [error, result] = await requestServer(`/${selector}`)
+      const params = objectToParams({
+        page, perPage, keyword, sort,
+      })
+      const [error, result] = await requestServer(`/${selector}?${params}`)
 
       unstable_batchedUpdates(() => {
         setFetchLoading(false)
@@ -42,26 +63,30 @@ export default withSnackbar((props) => {
           return
         }
 
+        setTotal(result.total)
+        setLastPage(result.last_page)
         setData(result.data)
       })
     }
 
     reqFunc()
-  }, [selector])
+  }, [selector, page, perPage, keyword, sort])
 
   React.useEffect(() => {
     fetchData()
   }, [fetchData])
 
-  // React.useEffect(() => {
-  //   console.log(props.layout)
-  // }, [props.layout])
+  const onTableRowClick = (v) => {
+    setSelectedData(v)
+    setOpenFormDialog(true)
+  }
 
   return (
     <div>
-      {/* {JSON.stringify(props)}
-      <Layout {...props} /> */}
       <Layout {...props}>
+        {/* {JSON.stringify(objectToParams({
+          page, perPage, keyword, sort,
+        }))} */}
         <Box position="relative">
           {/* Header */}
           <Box display="flex" alignItems="center">
@@ -69,7 +94,13 @@ export default withSnackbar((props) => {
               {title}
             </Typography>
             <div style={{ marginRight: 10 }} />
-            <IconButton size="medium" onClick={() => setOpenFormDialog(true)}>
+            <IconButton
+              size="medium"
+              onClick={() => {
+                setSelectedData(null)
+                setOpenFormDialog(true)
+              }}
+            >
               <Add />
             </IconButton>
             <IconButton size="medium" onClick={() => setOpenFilterDialog(true)}>
@@ -80,7 +111,6 @@ export default withSnackbar((props) => {
             <div style={{ margin: 'auto' }} />
 
             <TextField
-              // margin="deadminnse"
               type="text"
               placeholder={`Search here`}
               InputProps={{
@@ -110,9 +140,14 @@ export default withSnackbar((props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((v, i) => (
+              {!fetchLoading && data.map((v, i) => (
                 <TableRow
                   key={`tbr-${selector}-${i}`}
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => onTableRowClick(v)}
+                  selected={selectedData && selectedData[idFieldName] === v[idFieldName]}
                   hover
                 >
                   {fields.map((f, j) => (
@@ -129,7 +164,13 @@ export default withSnackbar((props) => {
             </Typography>
           )}
 
-          <RenderCrudPagination />
+          <RenderCrudPagination
+            disabled={fetchLoading}
+            lastPage={lastPage}
+            total={total}
+            page={page}
+            setPage={setPage}
+          />
         </Box>
       </Layout>
 
@@ -138,14 +179,19 @@ export default withSnackbar((props) => {
         title={title}
         fields={fields}
         open={openFormDialog}
-        onClose={() => setOpenFormDialog(false)}
+        onClose={() => {
+          setOpenFormDialog(false)
+        }}
         enqueueSnackbar={enqueueSnackbar}
+        originalData={selectedData}
         refetch={fetchData}
       />
 
       <RenderCrudFilter
         open={openFilterDialog}
-        onClose={() => setOpenFilterDialog(false)}
+        onClose={() => {
+          setOpenFilterDialog(false)
+        }}
       />
     </div>
   )
