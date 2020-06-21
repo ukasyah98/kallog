@@ -1,3 +1,1 @@
-# Gagoblog
-
-Blog frontend gua.
+# Kalkulator Logika

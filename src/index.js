@@ -4,20 +4,13 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './redux/store';
 
-import 'draft-js/dist/Draft.css'
-import { SnackbarProvider } from 'notistack';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 ReactDOM.render(
-  <Provider store={store}>
-    <SnackbarProvider maxSnack={1}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </SnackbarProvider>
-  </Provider>,
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
   document.getElementById('root')
 );
 

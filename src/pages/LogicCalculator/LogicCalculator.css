@@ -1,0 +1,49 @@
+.logicc {
+  overflow: hidden;
+  display: flex;
+  /* flex-direction: column; */
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  /* height: calc(100%); */
+  /* height: 100vh; */
+  /* background-color: lightblue; */
+}
+
+.logicc-container {
+  width: 600px; /* auto break in lower screen size */
+  display: flex;
+  flex-direction: column;
+  /* background-color: lightcoral; */
+}
+
+.logicc-header {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 60px;
+  /* background-color: aqua; */
+}
+
+.logicc-display {
+  flex: 1;
+  padding: 14px 0px;
+  display: flex;
+  align-items: flex-end;
+  overflow: auto;
+}
+
+.logicc-keys {
+  height: 200px;
+  /* background-color: lightgoldenrodyellow; */
+  display: flex;
+  flex-direction: column;
+}
+
+.logicc-button-group {
+  border: solid 1px rgba(63, 81, 181, 0.5);
+  border-radius: 0px !important;
+}
+.logicc-button-group button {
+  border-radius: 0px !important;
+}
