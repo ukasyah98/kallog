@@ -1,11 +1,14 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
-// import Typography from '@material-ui/core/Typography'
+import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import HistoryIcon from '@material-ui/icons/History'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import TextField from '@material-ui/core/TextField';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 
 // import { Column, Table } from 'react-virtualized';
@@ -53,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   inputDisplay: {
-    padding: '0px 20px',
+    padding: '10px 20px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
   },
@@ -71,34 +74,37 @@ const useStyles = makeStyles((theme) => ({
   runButton: {
     color: theme.palette.success.main,
   },
+  formWrapper: {
+    flex: 1,
+    padding: 26,
+    borderRadius: 30,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  form: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    background: 'white',
+    borderTop: 'solid 1px #eee',
+    marginBottom: 30,
+    '& > :not(:last-child)': {
+      marginRight: 16,
+    },
+  },
 }))
 
 export default function () {
   const classes = useStyles()
   const [exp, setExp] = React.useState('M∧U')
+  const [varSekunder, setVarSekunder] = React.useState('OPQRSTUVWXYZ')
+  const [varPrimer, setVarPrimer] = React.useState('M')
+  const [isFiltering, setIsFiltering] = React.useState(false)
+
   // (M∨(P∨Q∨R∨S∨T∨U∨V∨W∨X∨Y∨Z))∧N
   const [openHistoryDialog, setOpenHistoryDialog] = React.useState(false)
   // A∨B∨C∨D∨E∨F∨G∨H∨I∨J∨K∨L∨M∨N∨O∨P
   const [visualizedData, setVisualizedData] = React.useState([])
   const [submitting, setSubmitting] = React.useState(false)
-
-  // React.useEffect(() => {
-  //   const handleResize = () => {
-  //     // setTimeout(() => {
-  //     // const el = document.getElementById('hasil-table')
-
-  //     // const dim = el.getBoundingClientRect()
-  //     // setResultShape([dim.width, dim.height])
-  //     // }, 300)
-  //   }
-  //   handleResize()
-
-  //   window.addEventListener('resize', handleResize)
-  //   return () => {
-  //     clearTimeout()
-  //     window.removeEventListener('resize', handleResize)
-  //   }
-  // }, [])
 
   const onHistoryDialogOpen = () => setOpenHistoryDialog(true)
   const onHistoryDialogClose = () => setOpenHistoryDialog(false)
@@ -107,46 +113,25 @@ export default function () {
     onHistoryDialogClose()
   }
 
-  // const handleInputChange = (e) => {
-  //   setExp(e.target.value)
-  // }
-  // React.useLayoutEffect(() => {
-  //   setTimeout(() => {
-  //     if (!inputRef.current) return
-  //     inputRef.current.focus()
-  //     inputRef.current.selectionStart = exp.length;
-  //     inputRef.current.selectionEnd = exp.length;
-  //   }, 500);
-
-  //   // return () => {
-  //   //   clearTimeout()
-  //   // }
-  // }, [exp])
-
   const appendExp = (char) => {
     setExp(exp => `${exp}${char}`)
-    // inputRef.current.focus()
-    // inputRef.current.selectionStart = inputRef.current.value.length - 3;
-    // inputRef.current.selectionEnd = inputRef.current.value.length;
   }
   const popExp = () => {
     setExp(exp => exp ? exp.substr(0, exp.length - 1) : '')
-    // inputRef.current.focus()
-    // inputRef.current.selectionStart = inputRef.current.value.length - 3;
-    // inputRef.current.selectionEnd = inputRef.current.value.length;
   }
   const handleSubmit = () => {
     setSubmitting(true)
+    const item = [varSekunder, varPrimer]
 
-    const maxStoredExps = 10
+    const maxStoredItems = 10
     const hist = localStorage.getItem('kallogHistory') || '[]'
     let histo = JSON.parse(hist)
-    histo = histo.filter(v => v !== exp)
-    histo.unshift(exp)
-    if (histo.length > maxStoredExps) histo.pop()
+    histo = histo.filter(v => v !== item)
+    histo.unshift(item)
+    if (histo.length > maxStoredItems) histo.pop()
     localStorage.setItem('kallogHistory', JSON.stringify(histo))
 
-    const varNames = exp.replace(/[^A-Z]/g, '').split('').sort()
+    const varNames = item.join('').split('')
     const numberOfRows = 2 ** varNames.length
 
     const varData = varNames.map((cn, i) => {
@@ -169,7 +154,7 @@ export default function () {
     try {
       visData.push(['No.', ...varNames, 'Nilai'])
       for (let a = 0; a < numberOfRows; a++) {
-        let formattedExp = exp
+        let formattedExp = getPersamaan()
         let visDataItem = []
         visDataItem.push(a + 1)
         for (let i = 0; i < varData.length; i++) {
@@ -201,6 +186,24 @@ export default function () {
     // alert(JSON.stringify(visData))
   }
 
+  const getPersamaan = () => {
+    let persamaan = ''
+    if (varPrimer.length > 0) {
+      persamaan += varPrimer.length === 1
+        ? varPrimer
+        : '(' + varPrimer.split('').join('∧') + ')'
+    }
+    if (varSekunder.length > 0) {
+      persamaan += varPrimer ? '∨' : ''
+      persamaan += varSekunder.length === 1
+        ? varSekunder
+        : varSekunder.split('').join('∨')
+    }
+    return persamaan
+  }
+
+  const resultTableList = isFiltering ? visualizedData.filter(v => v[1] === 1) : visualizedData
+
   return (
     <div>
       <CssBaseline />
@@ -222,7 +225,9 @@ export default function () {
             ]}
           />
           <div className={classes.inputDisplay}>
-            <TextareaAutosize disabled value={exp} className={classes.inputDisplayText} />
+            <TextareaAutosize
+              disabled value={getPersamaan()}
+              className={classes.inputDisplayText} />
             {/* <InputBase
                 fullWidth autoFocus
                 onChange={handleInputChange}
@@ -234,20 +239,71 @@ export default function () {
                 {<span>{exp}</span> || <span style={{ visibility: 'hidden' }}>X</span>}
               </Typography> */}
           </div>
-          <div className={classes.none}>
-            <Keypad
+          <Paper elevation={3} className={classes.formWrapper}>
+            <div className={classes.form}>
+              <TextField
+                fullWidth autoFocus
+                margin="dense"
+                variant="outlined"
+                label="Variabel sekunder"
+                helperText={varSekunder ? `${varSekunder.length} variabel` : 'Contoh: PQRSTUVXY'}
+                onChange={(e) => setVarSekunder(e.target.value)}
+                value={varSekunder}
+              />
+              <TextField
+                fullWidth
+                margin="dense"
+                variant="outlined"
+                label="Variabel primer"
+                helperText={varPrimer ? `${varPrimer.length} variabel` : 'Contoh: MN'}
+                onChange={(e) => setVarPrimer(e.target.value)}
+                value={varPrimer}
+              />
+            </div>
+            <Typography variant="h5">
+              Ketentuan:
+            </Typography>
+            <Typography variant="body1">
+              Total variabel primer dan sekunder
+              bisa 12 atau 13. Jika berjumlah 12, maka itu terdiri
+              dari 10 variabel sekunder dan 2 variabel primer
+              (studi kasus ijazah).
+              Jika berjumlah 13, maka itu terdiri dari 12 variabel
+              sekunder dan 1 variabel primer (studi kasus transkrip
+              nilai).
+            </Typography>
+            {/* <Keypad
               disabled={submitting}
               appendExp={appendExp}
               popExp={popExp}
               onSubmit={handleSubmit}
-            />
-          </div>
+            /> */}
+          </Paper>
         </div>
         <div className={classes.section}>
-          <Header title="Hasil" disabled={submitting} />
+          <Header
+            title={resultTableList.length ? `Hasil (${resultTableList.length} baris)` : 'Hasil'}
+            disabled={submitting}
+            actionComponent={(
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isFiltering}
+                    onChange={() => setIsFiltering(f => !f)}
+                    color="primary"
+                    name="checkedB"
+                  />
+                }
+                label={`Filter ${varPrimer[0]} = 1`}
+                style={{ display: varPrimer.length === 0 && 'none' }}
+              />
+            )}
+          />
 
           <div className={classes.resultTable} id="hasil-table">
-            <ResultTable list={visualizedData} />
+            <ResultTable
+              list={resultTableList}
+            />
             {/* <Table
               width={resultShape[0]}
               height={resultShape[1]}

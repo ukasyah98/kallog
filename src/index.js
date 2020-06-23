@@ -5,7 +5,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from 'react-router-dom';
 
-import 'react-perfect-scrollbar/dist/css/styles.css';
+import 'react-virtualized/styles.css'; // only needs to be imported once
 
 ReactDOM.render(
   <BrowserRouter>
